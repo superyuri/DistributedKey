@@ -14,27 +14,31 @@ namespace DistributedKey
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="fingerprintFeature"></param>
-        internal static void Step1(string username, string password, string fingerprintFeature,string privatekey,double tau)
+        internal static void Step1()
         {
             //h(pwa||B),B
-            var clienthash = CombineHash(password, fingerprintFeature);
+            var clienthash = CombineHash(Constants.Password, Constants.FingerprintFeature);
 
             //R=H(IDA||Ki)
-            var R = CombineHash(username, privatekey);
+            var R = CombineHash(Constants.Username, Constants.Privatekey);
             //Z=R+h(pwa||B)
             var Z = R + "+" + clienthash;
 
             Console.WriteLine("存入智能卡的值为");
             Console.WriteLine("Z={0}", Z);
-            Console.WriteLine("B={0}", fingerprintFeature);
+            Console.WriteLine("B={0}", Constants.FingerprintFeature);
             Console.WriteLine("H(.)={0}", "???");
             Console.WriteLine("D(.)={0}", "???");
-            Console.WriteLine("τ={0}", tau);
+            Console.WriteLine("τ={0}", Constants.Tau);
         }
-        internal static void Step2(string username, string password, string fingerprintFeature, string invalidFingerprintFeature, string validFingerprintFeature, string privatekey, double tau)
+        internal static void Step2_1()
         {
-            double val1 = FingerprintFeatureSimilarity(fingerprintFeature, invalidFingerprintFeature);
-            double val2 = FingerprintFeatureSimilarity(fingerprintFeature, validFingerprintFeature);
+            double val1 = FingerprintFeatureSimilarity(Constants.FingerprintFeature, Constants.InvalidFingerprintFeature);
+            double val2 = FingerprintFeatureSimilarity(Constants.FingerprintFeature, Constants.ValidFingerprintFeature);
+
+
+            Console.WriteLine("\n以上一条指纹特征值为样本，继续算法", Constants.Tau);
+            
         }
         /// <summary>
         /// 计算Hash，用sha1算法
@@ -86,7 +90,7 @@ namespace DistributedKey
             }
             var result = 1-(d[source.Length][target.Length] + 0.0) / source.Length;
             Console.WriteLine("指纹特征值：{0}\n比对结果：匹配失败字符数：{1}   匹配程度：{2} 匹配结果：{3}",
-                target, d[source.Length][target.Length], result, result >Program.Tau?"成功":"失败");
+                target, d[source.Length][target.Length], result, result >Constants.Tau?"成功":"失败");
             return result;
         }
 
