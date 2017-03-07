@@ -20,7 +20,7 @@ namespace DistributedKey
             Console.WriteLine("用户名：{0}", Constants.Username);
             Console.WriteLine("密码：{0}", Constants.Password);
             Console.WriteLine("指纹特征值：{0}", Constants.FingerprintFeature);
-            Console.WriteLine("切比雪夫混沌映射私钥：{0}", Constants.Privatekey);
+            Console.WriteLine("服务器i的切比雪夫混沌映射私钥：{0}", Constants.Privatekeyi);
             Console.WriteLine("指纹数据容错率：{0}", Constants.Tau);
             Console.ReadLine();
 
@@ -28,7 +28,6 @@ namespace DistributedKey
             Console.ReadLine();
 
             Console.WriteLine("算法仿真Part2：互换认证阶段");
-            Console.WriteLine("算法仿真Part2.1：用户登录服务器阶段,扫描特征值\n");
             Console.ReadLine();
 
             Console.WriteLine("输入参数");
@@ -37,11 +36,21 @@ namespace DistributedKey
             Console.WriteLine("指纹特征值：{0}", Constants.FingerprintFeature);
             Console.WriteLine("某一无效指纹特征值：{0}", Constants.InvalidFingerprintFeature);
             Console.WriteLine("某一有效指纹特征值：{0}", Constants.ValidFingerprintFeature);
-            Console.WriteLine("切比雪夫混沌映射私钥：{0}", Constants.Privatekey);
+            Console.WriteLine("服务器i的切比雪夫混沌映射私钥：{0}", Constants.Privatekeyi);
             Console.WriteLine("指纹数据容错率：{0}", Constants.Tau);
+            Console.WriteLine("变量X：{0}", Constants.VariableX);
             Console.ReadLine();
-            Algorithm.Step2_1();
 
+            Console.WriteLine("算法仿真Part2.1：用户登录服务器阶段,扫描特征值\n");
+            Algorithm.Step2_1();
+            Console.ReadLine();
+
+            Console.WriteLine("算法仿真Part2.2：m1={IDa,Ta(x),C1}\n");
+            string m1 = Algorithm.Step2_2();
+            Console.ReadLine();
+
+            Console.WriteLine("算法仿真Part2.3：m2={IDsj,TRi(x),C2}");
+            Algorithm.Step2_3(m1);
             Console.ReadLine();
         }
     }

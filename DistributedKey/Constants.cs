@@ -17,13 +17,29 @@ namespace DistributedKey
         /// </summary>
         public static string Password = "Alicepassword";
         /// <summary>
-        /// Ki 切比雪夫混沌映射私钥
+        /// Ki 服务器i的切比雪夫混沌映射私钥
         /// </summary>
-        public static string Privatekey = "Privatekeyvalue";
+        public static int Privatekeyi = 38;
+        /// <summary>
+        /// Kj 服务器j的切比雪夫混沌映射私钥
+        /// </summary>
+        public static int Privatekeyj = 28;
         /// <summary>
         /// τ,容错率
         /// </summary>
         public static double Tau = 0.95;
+        /// <summary>
+        /// x，变量，取值范围[-1,1]
+        /// </summary>
+        public static double VariableX = -0.6252313;
+        /// <summary>
+        /// 最大切比雪夫计算次数
+        /// </summary>
+        public static int CHEBYSHEV_MAX = 40;
+        /// <summary>
+        /// 第j个服务器的标识符
+        /// </summary>
+        public static string IDSj = "IDSjValue";
         /// <summary>
         /// B，原始特征值
         /// </summary>

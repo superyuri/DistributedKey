@@ -20,7 +20,7 @@ namespace DistributedKey
             var clienthash = CombineHash(Constants.Password, Constants.FingerprintFeature);
 
             //R=H(IDA||Ki)
-            var R = CombineHash(Constants.Username, Constants.Privatekey);
+            var R = CombineHash(Constants.Username, Constants.Privatekeyi);
             //Z=R+h(pwa||B)
             var Z = R + "+" + clienthash;
 
@@ -36,24 +36,93 @@ namespace DistributedKey
             double val1 = FingerprintFeatureSimilarity(Constants.FingerprintFeature, Constants.InvalidFingerprintFeature);
             double val2 = FingerprintFeatureSimilarity(Constants.FingerprintFeature, Constants.ValidFingerprintFeature);
 
-
-            Console.WriteLine("\n以上一条指纹特征值为样本，继续算法", Constants.Tau);
-            
         }
-        /// <summary>
-        /// 计算Hash，用sha1算法
-        /// </summary>
-        /// <param name="string1"></param>
-        /// <param name="string2"></param>
-        /// <returns></returns>
+         /// <summary>
+         /// 计算Hash，用sha1算法
+         /// </summary>
+         /// <param name="string1"></param>
+         /// <param name="string2"></param>
+         /// <returns></returns>
         internal static string CombineHash(string string1, string string2)
         {
+            return Hash(string1 + string2);
+        }
+        internal static string CombineHash(string[] list)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var item in list)
+            {
+                sb.Append(item);
+            }
+            return Hash(sb.ToString());
+        }
+
+        internal static string CombineHash(string string1, int val2)
+        {
+            return CombineHash(string1, val2 + "");
+        }
+        internal static string CombineHash(string string1, double val2)
+        {
+            return CombineHash(string1, val2 + "");
+        }
+        private static string Hash(string value)
+        {
             var hmac = System.Security.Cryptography.HMACSHA1.Create();
-            var hashbytes = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(string1 + string2));
+            var hashbytes = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(value));
             string strResult = BitConverter.ToString(hashbytes);
             strResult = strResult.Replace("-", "");
             return strResult;
         }
+
+        internal static string Step2_2()
+        {
+            //a
+            var times = new Random().Next(Constants.CHEBYSHEV_MAX);
+
+            //calc Ta(x)
+            var tax = ChebyshevPolynomial(times, Constants.VariableX);
+
+            //R=H(IDA||Ki)
+            var R = CombineHash(Constants.Username, Constants.Privatekeyi);
+
+            //C1=H(R||Ta(x))
+            var C1 = CombineHash(R, tax);
+
+            Console.WriteLine("经过计算，m1={IDa,Ta(x),C1}的值如下:");
+            Console.WriteLine("IDa={0}", Constants.Username);
+            Console.WriteLine("Ta(x)={0}", tax);
+            Console.WriteLine("C1={0}", C1);
+
+            return string.Format("{0},{1},{2}", Constants.Username, tax, C1);
+        }
+        internal static void Step2_3(string m1)
+        {
+            //Ri
+            var ri = new Random().Next(Constants.CHEBYSHEV_MAX);
+
+            //calc TRi(x)
+
+            var trix = ChebyshevPolynomial(ri, Constants.VariableX);
+
+            //calc KSiSj(x)=Tri(Tkj(x))
+            var ksisj = ChebyshevPolynomial(ri,ChebyshevPolynomial(Constants.Privatekeyj, Constants.VariableX));
+
+            //Hsj = H(IDa||IDSj||TRi(x)||m1)
+            var Hsj = CombineHash(new string[]
+                {
+                    Constants.Username,
+                    Constants.IDSj,
+                    trix+"",
+                    m1
+                });
+            
+
+            Console.WriteLine("经过计算:");
+            Console.WriteLine("TRi(x)={0}", trix);
+            Console.WriteLine("KSiSj(x)={0}", ksisj);
+            Console.WriteLine("Hsj={0}", Hsj);
+        }
+
         /// <summary>
         /// 指纹特征相似度比较
         /// </summary>
@@ -93,6 +162,25 @@ namespace DistributedKey
                 target, d[source.Length][target.Length], result, result >Constants.Tau?"成功":"失败");
             return result;
         }
+        /// <summary>
+        /// 切比雪夫多项式算法
+        /// </summary>
+        internal static double ChebyshevPolynomial(int subScript, double x)
+        {
+            if (subScript <=0)
+            {
+                return 1;
+            }
+            else if (subScript == 1)
+            {
+                return x;
+            }
+            else
+            {
+                return 2 * x * ChebyshevPolynomial(subScript - 1, x) - ChebyshevPolynomial(subScript - 2, x);
+            }
+        }
+
 
 
         private static int min(int i, int j, int k)
