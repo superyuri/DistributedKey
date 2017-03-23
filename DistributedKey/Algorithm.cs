@@ -73,7 +73,61 @@ namespace DistributedKey
             strResult = strResult.Replace("-", "");
             return strResult;
         }
+        /// <summary>
+        /// 未完成，skey要求256bit，比如是c5d608eb97d94123
+        /// </summary>
+        /// <param name="sSrc"></param>
+        /// <param name="sKey"></param>
+        /// <returns></returns>
+        private static string Encrypt(string sSrc, string sKey)
+        {
+            try
+            {
+                // if (string.IsNullOrEmpty(sKey) || string.IsNullOrEmpty(sSrc) || sKey.Length != 16) return null;
+                Byte[] toEncryptArray = Encoding.UTF8.GetBytes(sSrc);
 
+                System.Security.Cryptography.RijndaelManaged rm = new System.Security.Cryptography.RijndaelManaged
+                {
+                    Key = Encoding.UTF8.GetBytes(sKey),
+                    Mode = System.Security.Cryptography.CipherMode.ECB,
+                    Padding = System.Security.Cryptography.PaddingMode.PKCS7
+                };
+
+                System.Security.Cryptography.ICryptoTransform cTransform = rm.CreateEncryptor();
+                Byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+
+                return Convert.ToBase64String(resultArray);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+        public static string Decrypt(string sSrc, string sKey)
+        {
+            try
+            {
+                // if (string.IsNullOrEmpty(sKey) || string.IsNullOrEmpty(sSrc) || sKey.Length != 16) return null;
+
+                Byte[] toEncryptArray = Convert.FromBase64String(sSrc);
+
+                System.Security.Cryptography.RijndaelManaged rm = new System.Security.Cryptography.RijndaelManaged
+                {
+                    Key = Encoding.UTF8.GetBytes(sKey),
+                    Mode = System.Security.Cryptography.CipherMode.ECB,
+                    Padding = System.Security.Cryptography.PaddingMode.PKCS7
+                };
+
+                System.Security.Cryptography.ICryptoTransform cTransform = rm.CreateDecryptor();
+                Byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+
+                return Encoding.UTF8.GetString(resultArray);
+            }
+            catch
+            {
+                return null;
+            }
+        }
         internal static string Step2_2()
         {
             //a
@@ -95,7 +149,7 @@ namespace DistributedKey
 
             return string.Format("{0},{1},{2}", Constants.Username, tax, C1);
         }
-        internal static void Step2_3(string m1)
+        internal static string Step2_3(string m1)
         {
             //Ri
             var ri = new Random().Next(Constants.CHEBYSHEV_MAX);
@@ -105,22 +159,25 @@ namespace DistributedKey
             var trix = ChebyshevPolynomial(ri, Constants.VariableX);
 
             //calc KSiSj(x)=Tri(Tkj(x))
-            var ksisj = ChebyshevPolynomial(ri,ChebyshevPolynomial(Constants.Privatekeyj, Constants.VariableX));
+            var Ksisj = ChebyshevPolynomial(ri,ChebyshevPolynomial(Constants.Privatekeyj, Constants.VariableX));
 
-            //Hsj = H(IDa||IDSj||TRi(x)||m1)
-            var Hsj = CombineHash(new string[]
+            //Hsi = H(IDa||IDSi||TRi(x)||m1)
+            var Hsi = CombineHash(new string[]
                 {
                     Constants.Username,
-                    Constants.IDSj,
+                    Constants.IDSi,
                     trix+"",
                     m1
                 });
-            
+
+            var C2 = Encrypt(Constants.Username + Constants.IDSi + m1 + Hsi, Ksisj+"");
 
             Console.WriteLine("经过计算:");
+            Console.WriteLine("IDSi={0}", Constants.IDSi);
             Console.WriteLine("TRi(x)={0}", trix);
-            Console.WriteLine("KSiSj(x)={0}", ksisj);
-            Console.WriteLine("Hsj={0}", Hsj);
+            Console.WriteLine("C2={0}", C2);
+
+            return string.Format("{0},{1},{2}", Constants.IDSi, trix, C2);
         }
 
         /// <summary>

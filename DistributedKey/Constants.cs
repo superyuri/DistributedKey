@@ -37,6 +37,10 @@ namespace DistributedKey
         /// </summary>
         public static int CHEBYSHEV_MAX = 40;
         /// <summary>
+        /// 第i个服务器的标识符
+        /// </summary>
+        public static string IDSi = "IDSiValue";
+        /// <summary>
         /// 第j个服务器的标识符
         /// </summary>
         public static string IDSj = "IDSjValue";

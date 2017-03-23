@@ -50,7 +50,7 @@ namespace DistributedKey
             Console.ReadLine();
 
             Console.WriteLine("算法仿真Part2.3：m2={IDsj,TRi(x),C2}");
-            Algorithm.Step2_3(m1);
+            string m2 = Algorithm.Step2_3(m1);
             Console.ReadLine();
         }
     }
